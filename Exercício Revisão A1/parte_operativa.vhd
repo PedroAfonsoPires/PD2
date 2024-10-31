@@ -3,66 +3,56 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
 
-entity parte_operativa is
-	port(
-		input0  : in std_logic_vector(7 downto 0);
-		input1  : in std_logic_vector(7 downto 0);
-		clock   : in std_logic;
-		reset   : in std_logic;
-		en_0    : in std_logic;
-		en_1    : in std_logic;
-		op_0    : in std_logic;
-		output0 : out std_logic_vector(7 downto 0)
-		);
+entity tb_parte_operativa is 
 end entity;
 
-architecture behavior of parte_operativa is 
-signal FF_A : std_logic_vector(7 downto 0);
-signal FF_B : std_logic_vector(7 downto 0);
-signal FF_C : std_logic_vector(7 downto 0);
-signal FF_D : std_logic_vector(7 downto 0);
-signal FF_E : std_logic_vector(7 downto 0);
-signal FF_F : std_logic_vector(7 downto 0);
-signal FF_G : std_logic_vector(7 downto 0);
+architecture behavior of tb_parte_operativa is
+component parte_operativa is
+	port(
+		entrada1 : in std_logic_vector(3 downto 0);
+		entrada2 : in std_logic_vector(3 downto 0);
+		clock    : in std_logic;
+		reset    : in std_logic;
+		M        : in std_logic;
+		S        : in std_logic;
+		En_AB    : in std_logic;
+		En_C     : in std_logic;
+		output1  : out std_logic_vector(3 downto 0)
+		
+		);
+end component;
 
-begin 
-process(clock,reset)
+signal entrada1_sg : std_logic_vector(3 downto 0):= "0011";
+signal entrada2_sg : std_logic_vector(3 downto 0):= "0010";
+signal clock_sg    : std_logic:= '0';
+signal reset_sg    : std_logic:= '0';
+signal M_sg        : std_logic:= '0';
+signal S_sg        : std_logic:= '1';
+signal En_AB_sg    : std_logic:= '1';
+signal En_C_sg     : std_logic:= '1';
+signal output1_sg  : std_logic_vector(3 downto 0);
+
 begin
 
-if (reset = '0') then
-	FF_A <= (others => '0');
-	FF_B <= (others => '0');
-	FF_C <= (others => '0');
-	FF_D <= (others => '0');
-	FF_E <= (others => '0');
-	FF_F <= (others => '0');
-	FF_G <= (others => '0');
-elsif (clock = '1' and clock'event) then 
-	if (en_0 = '1') then
-		FF_A <= input0; 
-	else
-		FF_A <= FF_A;
-	end if;
-	
-	if (en_1 = '1') then
-		FF_B <= input1;
-	else
-		FF_B <= FF_B;
-	end if;
-	
-	FF_D <= FF_A + FF_B;
-	FF_E <= FF_A - FF_B;
-	
-	if (op_0 = '1') then
-		FF_C <= op_0;
-		FF_F <= op_0;
-		FF_G <= FF_D;
-	else
-		FF_C <= op_0;
-		FF_F <= op_0;
-		FF_G <= FF_E;
-	end if;
-end if;
+inst_parte_operativa : parte_operativa
+	port map(
+		entrada1 => entrada1_sg,
+		entrada2 => entrada2_sg,
+		clock    => clock_sg,
+		reset    => reset_sg,
+		M        => M_sg,
+		S        => S_sg,
+		En_AB    => En_AB_sg,
+		En_C     => En_C_sg,
+		output1  => output1_sg
+		);
+clock_sg <= not clock_sg after 5 ns;
+process
+begin
+	wait for 2 ns;
+		reset_sg <= '1';
+	wait for 17 ns;
+		M_sg <= '1';
+	wait;
 end process;
-	output0 <= FF_G;
-end behavior;	
+end behavior;
